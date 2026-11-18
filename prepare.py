@@ -36,8 +36,7 @@ def main(data):
                 node_count=len(t.nodes),route_entries=len(route),invalid_gps=t.missing,
                 nonincreasing=int((dt<=0).sum()),one_second=int((dt==1).sum()),
                 gaps_over_10=int((dt>10).sum()),max_gap=float(dt.max()) if len(dt) else 0,
-                lon_min=t.track[:,0].min(),lon_max=t.track[:,0].max(),lat_min=t.track[:,1].min(),
-                lat_max=t.track[:,1].max(),weak_components=components,isolated_nodes=isolated,
+                weak_components=components,isolated_nodes=isolated,
                 candidate_misses=int((~(ids==labels[:,None]).any(1)).sum()),
                 input_bytes=sum(p.stat().st_size for p in folder.glob(t.name+".*"))))
             print(split,t.name,len(labels),flush=True)

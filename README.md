@@ -62,14 +62,41 @@ Open http://127.0.0.1:8501 on Laptop 2. Both laptops must be able to reach port 
 
 GET /trips lists available trip IDs. POST /match/{trip_id} reconstructs one trip. FastAPI documents the endpoints at /docs. Missing labels produce a prediction with null metrics. Unknown IDs return 404.
 
-## Verification status
+## Submission and verification
 
-Model experiments and reference-free inference are locally executable using NumPy. Check results/verification.json for the completed checks. GitHub Actions passed the live FastAPI/Uvicorn request, UI proxy, server-side scoring and Folium HTML checks on a synthetic trip. [Verification run](https://github.com/NAVEEN4516/PathSnap-PT095/actions/runs/44248380610). Physical two-laptop evaluation remains pending. The ten reserved evaluator trips were not supplied.
+The consolidated technical report records the first integrated run. All ten student trips passed through a browser, the UI proxy and FastAPI on one host. Each POST returned HTTP 200. The four returned metrics agreed with offline scores, and the responses contained 19,160 predictions. Pages 7–8 contain the map, UI and receiving-server evidence. Open the report's `development_map.html` attachment in a PDF viewer that supports embedded files.
 
-The UI provides an offline geographic plot. visualize_map.py generates the required interactive Folium development map including GPS, candidate roads, reference and prediction. Reference layers are restricted to development analysis.
+The model and CSVs in this checkout come from a separate Windows reproduction. Both runs selected depth-9 CART, adjacency cost 0.65, jump cost 6 and a 10-second restart. Each value below is a mean across ten trips.
 
-## Contribution and disclosure
+| CART + Viterbi | PDF run | This checkout |
+|---|---:|---:|
+| Aligned point accuracy | 90.03% | 89.97% |
+| Road macro F1 | 0.832 | 0.826 |
+| Direct road continuity | 97.67% | 97.68% |
+| Ordered sequence F1 | 0.812 | 0.808 |
 
-The implementation and initial experiments were prepared with ChatGPT assistance. Team members should run, inspect and understand their assigned components, record their own changes and disclose assistance according to event policy. The PDF technical report is Deliverable 2 and will be prepared after deployment verification.
+The two runs produced slightly different fitted results. The exact cause has not been established. `results/verification.json` records the independent comparison between this checkout's saved model and its offline CSV for all 19,160 observations. It also records the check that removing the reference file leaves predictions unchanged. The physical two-laptop demonstration and the organiser's reserved trips remain for evaluation day.
 
-Run python deployment_smoke.py after installation to test the real HTTP API, UI proxy and Folium HTML on a synthetic trip. The same check is configured in GitHub Actions. See results/original_search_summary.csv for all eight measured optimisation scores.
+### Interactive map
+
+`visualize_map.py` writes `results/development_map.html` for student trip 00000076. It embeds Leaflet during generation and uses local vector layers for the road network, candidates, reference, prediction and GPS. Generating the HTML requires an internet connection to obtain the Leaflet assets. Opening the generated HTML works offline. The map in the PDF is the original report-run export.
+
+### Run the checks
+
+```powershell
+.venv/Scripts/python diagnostics.py
+.venv/Scripts/python verify.py
+.venv/Scripts/python deployment_smoke.py
+```
+
+The smoke check starts both web processes on ports 8000 and 8501 using a synthetic trip. Run it before starting the live servers. With both real services running and the student-test dataset selected, run the following in a third terminal:
+
+```powershell
+.venv/Scripts/python integration_check.py --ui http://127.0.0.1:8501
+```
+
+It checks every proxied response against the offline CSV and writes `results/http_verification.json` after all ten pass. `results/decoder_search.csv` records the six transition settings tested with out-of-fold training emissions. The decoder and classifier settings are saved together in `artifacts/model.json`.
+
+### Assistance
+
+ChatGPT assisted with implementation, execution, verification and report drafting. The team is responsible for presenting its contributions and conducting the physical demonstration.

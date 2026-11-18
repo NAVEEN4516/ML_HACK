@@ -2456,7 +2456,7 @@
   },
   "decoder": {
     "adjacent_cost": 0.65,
-    "jump_cost": 4.0,
+    "jump_cost": 6.0,
     "gap_s": 10.0
   },
   "features": [
